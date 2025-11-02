@@ -1,8 +1,8 @@
 FROM ubuntu:24.04 AS builder
 
 # apt package cache using apt-cacher-ng running on host
-ARG APTPROXY="http://172.17.0.1:3142"
-RUN echo "Acquire::http::Proxy \"$APTPROXY\";" > /etc/apt/apt.conf.d/01proxy
+# ARG APTPROXY="http://172.17.0.1:3142"
+# RUN echo "Acquire::http::Proxy \"$APTPROXY\";" > /etc/apt/apt.conf.d/01proxy
 
 RUN mkdir /opt/manifests
 
@@ -22,11 +22,11 @@ RUN cmake \
     -DPYTHON_EXECUTABLE=/usr/bin/python3 \
     -DCMAKE_INSTALL_PREFIX=/usr \
     ../
-RUN make -j$(nproc) && make install && ldconfig
+RUN make -j$(nproc) && make install && ldconfig && \
+    cp /volk/build/install_manifest.txt /opt/manifests/volk-manifest.txt
 
 RUN tar czf /tmp/volk-install.tar.gz --warning=none \
-    -T /volk/build/install_manifest.txt
-COPY /volk/build/install_manifest.txt /opt/manifests
+    -T /volk/build/install_manifest.txt 
 
 #
 # GNU Radio
@@ -72,11 +72,11 @@ RUN rm -rf build && cmake -B build -S . \
     -DGR_PYTHON_DIR=$(python3 -c "import sysconfig; print(sysconfig.get_path('platlib'))") \
     ../
 
-RUN cd build/ && make -j$(nproc) && make install && ldconfig
+RUN cd build/ && make -j$(nproc) && make install && ldconfig && \
+    cp /gnuradio/build/install_manifest.txt /opt/manifests/gnuradio-manifest.txt
 
 RUN tar czf /tmp/gnuradio-install.tar.gz --warning=none \
     -T /gnuradio/build/install_manifest.txt
-COPY /gnuradio/build/install_manifest.txt /opt/manifests
 
 # Save Boost runtimes (no easier way to apt-get install libboost without '-dev')
 RUN mkdir -p /opt/runtime-libs && \
@@ -92,11 +92,11 @@ RUN cmake -B build -S . \
   -DPYTHON_EXECUTABLE=/usr/bin/python3 \
   -DGR_PYTHON_DIR=$(python3 -c "import sysconfig; print(sysconfig.get_path('platlib'))")
 
-RUN cmake --build build -j$(nproc) && cmake --install build
+RUN cmake --build build -j$(nproc) && cmake --install build && \
+    cp /gr-satellites/build/install_manifest.txt /opt/manifests/gr-satellites-manifest.txt
 
 RUN tar czf /tmp/gr-satellites-install.tar.gz --warning=none \
     -T /gr-satellites/build/install_manifest.txt
-COPY /gr-satellites/build/install_manifest.txt /opt/manifests
 
 RUN rm -rf /var/lib/apt/lists/*
 

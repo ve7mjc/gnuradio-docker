@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# this is a kludge to find location of python modules by file path
+# preference should be given to analysis of the build/cmake install manifests
 find_python_package() {
     local pkg="$1"
     [[ -z "$pkg" ]] && { echo "Usage: find_python_package <package_name>"; return 1; }
@@ -25,12 +27,11 @@ find_python_package() {
     fi
 }
 
-
-
-VENV_PATH="${1:-.venv}"
-REQ_FILE="${2:-requirements.txt}"
-
+# not currently being used
 init_python_venv() {
+
+  VENV_PATH="${1:-.venv}"
+  REQ_FILE="${2:-requirements.txt}"
 
   # Create venv if missing or incomplete
   if [ ! -d "$VENV_PATH" ] || [ ! -f "$VENV_PATH/bin/activate" ]; then
@@ -52,21 +53,15 @@ init_python_venv() {
 
 }
 
-# find /usr /usr/local -type d -path "*/gnuradio" | grep site-packages
-
-# /usr/lib/python3.12/site-packages/ <- volk_modtool
-# ls -latr /usr/lib/python3.12/dist-packages/
-# gnuradio -> /usr/local/lib/python3.12/dist-packages/
-# ls -latr /usr/local/lib/python3.12/dist-packages/
-# ls -latr /usr/local/lib/python3.12/site-packages/
-
-# find / | grep numpy
-
-export PYTHONPATH="/usr/lib/python3/site-packages:/usr/lib/python3.12/site-packages:/usr/local/lib/python3.12/dist-packages:${PYTHONPATH:-}"
-
 echo "Found Python packages at location(s):"
 echo "- gnuradio: $(find_python_package gnuradio)"
 echo "- requests: $(find_python_package requests)"
 echo "- satellites: $(find_python_package satellites)"
 
-python main.py
+# export PYTHONPATH="\
+# /usr/lib/python3/site-packages:\
+# /usr/lib/python3.12/site-packages:\
+# /usr/local/lib/python3.12/dist-packages:\
+# ${PYTHONPATH:-}"
+
+python3 main.py

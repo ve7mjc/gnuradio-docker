@@ -1,8 +1,15 @@
 #!/bin/bash
 
-source common.sh
+source default.env
 
-name=$image_name-test
+# Source local .env file if it exists (overrides defaults)
+if [ -f .env ]; then
+    source .env
+fi
 
-docker rm -f $name 2>/dev/null; docker run --name $name -v "$(pwd)/python-tests":/opt \
-    -w /opt -it $image_name:$image_tag bash run.sh
+container_name="${IMAGE_NAME}-test"
+
+docker rm -f $container_name 2>/dev/null
+docker run --name $container_name \
+    -v "$(pwd)/tests/python":/opt \
+    -w /opt -it $IMAGE_NAME:$IMAGE_TAG bash run.sh
