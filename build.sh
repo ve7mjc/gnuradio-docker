@@ -36,7 +36,9 @@ else
     echo "No apt-cacher-ng detected, building without proxy"
 fi
 
-docker buildx build $PROGRESS_ARG --load $APT_PROXY -t $IMAGE_NAME:$IMAGE_TAG .
+docker buildx build $PROGRESS_ARG --load $APT_PROXY \
+    --add-host=host.docker.internal:host-gateway \
+    -t $IMAGE_NAME:$IMAGE_TAG .
 
 size_mb="$(($(docker image inspect $IMAGE_NAME:$IMAGE_TAG --format='{{.Size}}')/1024/1024))"
 
