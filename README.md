@@ -18,6 +18,7 @@ Ubuntu + GNU Radio + Python for
 ## Building
 
 - Uses cmake `install_manifest.txt` where possible to pull only files to the runtime image which were built from that stage
+- Will autodetect and use a debian apt package cacher (ie `apt-cacher-ng`) on localhost:3142
 
 ## Todo
 

@@ -27,3 +27,6 @@ if __name__ == "__main__":
     print("\nGNU Radio out-of-tree modules")
     for mod in gr_oot_modules:
         test_module(mod)
+
+    from test_gnuradio import test_gnuradio
+    test_gnuradio()
